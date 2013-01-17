@@ -24,6 +24,12 @@ final class AphrontSideNavFilterView extends AphrontView {
   private $active;
   private $menu;
   private $crumbs;
+  private $classes = array();
+
+  public function addClass($class) {
+    $this->classes[] = $class;
+    return $this;
+  }
 
   public function __construct() {
     $this->menu = new PhabricatorMenuView();
@@ -166,6 +172,7 @@ final class AphrontSideNavFilterView extends AphrontView {
     $main_id = celerity_generate_unique_node_id();
 
     if ($this->flexible) {
+      $nav_classes[] = 'has-drag-nav';
       $drag_id = celerity_generate_unique_node_id();
       $flex_bar = phutil_render_tag(
         'div',
@@ -208,6 +215,8 @@ final class AphrontSideNavFilterView extends AphrontView {
     }
 
     if ($this->flexible) {
+      $nav_classes[] = 'has-drag-nav';
+
       Javelin::initBehavior(
         'phabricator-nav',
         array(
@@ -227,7 +236,9 @@ final class AphrontSideNavFilterView extends AphrontView {
       }
     }
 
-    return $crumbs.phutil_render_tag(
+    $nav_classes = array_merge($nav_classes, $this->classes);
+
+    return phutil_render_tag(
       'div',
       array(
         'class' => implode(' ', $nav_classes),
@@ -241,7 +252,7 @@ final class AphrontSideNavFilterView extends AphrontView {
           'class' => 'phabricator-nav-content',
           'id' => $content_id,
         ),
-        $this->renderChildren()));
+        $crumbs.$this->renderChildren()));
   }
 
 }

@@ -369,8 +369,9 @@ final class DifferentialChangesetParser {
     $generated_guess = (strpos($new_corpus_block, '@'.'generated') !== false);
 
     if (!$generated_guess) {
-      $config_key = 'differential.generated-paths';
-      $generated_path_regexps = PhabricatorEnv::getEnvConfig($config_key);
+      $generated_path_regexps = PhabricatorEnv::getEnvConfig(
+        'differential.generated-paths',
+        array());
       foreach ($generated_path_regexps as $regexp) {
         if (preg_match($regexp, $this->changeset->getFilename())) {
           $generated_guess = true;
@@ -704,7 +705,9 @@ final class DifferentialChangesetParser {
       ->setCodeCoverage($this->getCoverage())
       ->setRenderingReference($this->getRenderingReference())
       ->setMarkupEngine($this->markupEngine)
-      ->setHandles($this->handles);
+      ->setHandles($this->handles)
+      ->setOldLines($this->old)
+      ->setNewLines($this->new);
 
     if ($this->user) {
       $renderer->setUser($this->user);
@@ -743,7 +746,7 @@ final class DifferentialChangesetParser {
         $lines = number_format($this->changeset->getAffectedLineCount());
         $shield = $renderer->renderShield(
           pht(
-            'This file has a very large number of changes ({%s} lines).',
+            'This file has a very large number of changes (%s lines).',
             $lines));
       }
     }
@@ -894,8 +897,6 @@ final class DifferentialChangesetParser {
     );
 
     $renderer
-      ->setOldLines($this->old)
-      ->setNewLines($this->new)
       ->setGaps($gaps)
       ->setMask($mask)
       ->setDepths($depths);
